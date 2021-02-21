@@ -20,7 +20,6 @@ private:
     Service* dvrService;
     bool gotService = false;
     u32 version, mode, ipAddress;
-    std::string versionString;
     std::string modeString;
     char ipString[20];
     u32 statusColor = 0;
@@ -41,16 +40,15 @@ public:
         auto list = new tsl::elm::List();
 
         if(!gotService) {   
-            list->addItem(getErrorDrawer("Failed to setup SysDVR Service!", "Is sysdvr running?"), getErrorDrawerSize());
+            list->addItem(getErrorDrawer("Failed to setup SysDVR Service!\nIs sysdvr running?"), getErrorDrawerSize());
             frame->setContent(list);
             return frame;
         }
         
         sysDvrGetVersion(&version);
-        versionString = std::to_string(version);
 
         if(version!=SYSDVR_VERSION) {
-            list->addItem(getErrorDrawer("Unkown SysDVR API version", "Only version 5 is supported"), getErrorDrawerSize());
+            list->addItem(getErrorDrawer("Unkown SysDVR Config API: v"+ std::to_string(version) +"\nOnly Config API v5 is supported"), getErrorDrawerSize());
             frame->setContent(list);
             return frame;
         }
@@ -62,19 +60,16 @@ public:
         updateIP(newIp);
 
         auto infodrawer = new tsl::elm::CustomDrawer([this](tsl::gfx::Renderer *renderer, s32 x, s32 y, s32 w, s32 h) {
-            renderer->drawString("Status", false, x + 3, y + 15, 20, renderer->a(0xFFFF));
-            renderer->drawString("Version:", false, x + 3, y + 40, 16, renderer->a(0xFFFF));
-            renderer->drawString("Status:", false, x + 3, y + 60, 16, renderer->a(0xFFFF));
-            renderer->drawString("IP-Address:", false, x + 3, y + 80, 16, renderer->a(0xFFFF));
+            renderer->drawString("Info", false, x + 3, y + 16, 20, renderer->a(0xFFFF));
+            renderer->drawString("Mode:", false, x + 3, y + 40, 16, renderer->a(0xFFFF));
+            renderer->drawString("IP-Address:", false, x + 3, y + 60, 16, renderer->a(0xFFFF));
             
-            renderer->drawString(versionString.c_str(), false, x + 110, y + 40, 16, renderer->a(0xFFFF));
-            
-            renderer->drawCircle(x + 116, y + 55, 5, true, renderer->a(statusColor));
-            renderer->drawString(modeString.c_str(), false, x + 130, y + 60, 16, renderer->a(0xFFFF));
+            renderer->drawCircle(x + 116, y + 35, 5, true, renderer->a(statusColor));
+            renderer->drawString(modeString.c_str(), false, x + 130, y + 40, 16, renderer->a(0xFFFF));
 
-            renderer->drawString(ipString, false, x + 110, y + 80, 16, renderer->a(0xFFFF));
+            renderer->drawString(ipString, false, x + 110, y + 60, 16, renderer->a(0xFFFF));
         });
-        list->addItem(infodrawer, 80);
+        list->addItem(infodrawer, 70);
 
         // List Items
         list->addItem(new tsl::elm::CategoryHeader("Change Mode"));
@@ -102,10 +97,9 @@ public:
         return frame;
     }
 
-    tsl::elm::CustomDrawer* getErrorDrawer(std::string message1, std::string message2){
-        return new tsl::elm::CustomDrawer([message1, message2](tsl::gfx::Renderer *renderer, s32 x, s32 y, s32 w, s32 h) {
+    tsl::elm::CustomDrawer* getErrorDrawer(std::string message1){
+        return new tsl::elm::CustomDrawer([message1](tsl::gfx::Renderer *renderer, s32 x, s32 y, s32 w, s32 h) {
             renderer->drawString(message1.c_str(), false, x + 3, y + 15, 20, renderer->a(0xF22F));
-            renderer->drawString(message2.c_str(), false, x + 3, y + 45, 20, renderer->a(0xF22F));
         });
     }
 
