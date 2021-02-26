@@ -2,7 +2,8 @@
 #include <tesla.hpp>    // The Tesla Header
 
 //This is a version for the SysDVR Config app protocol, it's not shown anywhere and not related to the major version
-#define SYSDVR_VERSION 5
+#define SYSDVR_VERSION_MIN 5
+#define SYSDVR_VERSION_MAX 6
 #define TYPE_MODE_USB 1
 #define TYPE_MODE_TCP 2
 #define TYPE_MODE_RTSP 4
@@ -47,8 +48,9 @@ public:
         
         sysDvrGetVersion(&version);
 
-        if(version!=SYSDVR_VERSION) {
-            list->addItem(getErrorDrawer("Unkown SysDVR Config API: v"+ std::to_string(version) +"\nOnly Config API v5 is supported"), getErrorDrawerSize());
+        if(version>SYSDVR_VERSION_MAX ||version<SYSDVR_VERSION_MIN) {
+            list->addItem(getErrorDrawer("Unkown SysDVR Config API: v"+ std::to_string(version) 
+                +"\nOnly Config API v"+std::to_string(SYSDVR_VERSION_MIN)+" to "+std::to_string(SYSDVR_VERSION_MAX)+" is supported"), getErrorDrawerSize());
             frame->setContent(list);
             return frame;
         }
