@@ -223,7 +223,9 @@ private:
 public:
     // libtesla already initialized fs, hid, pl, pmdmnt, hid:sys and set:sys
     virtual void initServices() override {
-        gotService = R_SUCCEEDED(smGetService(&dvr, "sysdvr"));
+        if(isSysDVRServiceRunning()){
+            gotService = R_SUCCEEDED(smGetService(&dvr, "sysdvr"));
+        }
         nifmInitialize(NifmServiceType_User);
     }  // Called at the start to initialize all services necessary for this Overlay
     virtual void exitServices() override {
@@ -232,6 +234,21 @@ public:
         }
         nifmExit();
     }  // Callet at the end to clean up all services previously initialized
+
+    bool isSysDVRServiceRunning() {
+      u8 tmp=0;
+      SmServiceName service_name = smEncodeName("sysdvr");
+      Result rc;
+      if(hosversionAtLeast(12,0,0)){
+        rc = tipcDispatchInOut(smGetServiceSessionTipc(), 65100, service_name, tmp);
+      } else {
+        rc = serviceDispatchInOut(smGetServiceSession(), 65100, service_name, tmp);
+      }
+      if (R_SUCCEEDED(rc) && tmp & 1)
+        return true;
+      else
+        return false;
+    }
 
     virtual void onShow() override {}    // Called before overlay wants to change from invisible to visible state
     virtual void onHide() override {}    // Called before overlay wants to change from visible to invisible state
