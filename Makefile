@@ -38,7 +38,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
 APP_TITLE	:=	SysDVR Overlay
-APP_VERSION :=	1.0.1
+APP_VERSION :=	1.0.2
 
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
