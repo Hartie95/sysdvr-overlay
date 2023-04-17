@@ -3,7 +3,7 @@
 
 //This is a version for the SysDVR Config app protocol, it's not shown anywhere and not related to the major version
 #define SYSDVR_VERSION_MIN 5
-#define SYSDVR_VERSION_MAX 10
+#define SYSDVR_VERSION_MAX 11
 #define TYPE_MODE_USB 1
 #define TYPE_MODE_TCP 2
 #define TYPE_MODE_RTSP 4
@@ -15,12 +15,15 @@
 #define CMD_GET_MODE 101
 
 #define MODE_TO_CMD_SET(x) x
+#define UPDATE_INTERVALL 30
 
 class DvrOverlay : public tsl::Gui {
 private:
     Service* dvrService;
     bool gotService = false;
-    u32 version, mode, ipAddress;
+    u32 version, mode = 0, ipAddress = 0;
+    u32 targetMode = 0;
+    int waitFrames = -1;
     std::string modeString;
     char ipString[20];
     u32 statusColor = 0;
@@ -112,7 +115,7 @@ public:
     std::function<bool(u64 keys)> getModeLambda(u32 mode){
         return [this,mode](u64 keys) {
             if (keys & HidNpadButton_A) {
-                sysDvrSetMode(mode);
+                sysDVRRequestModeChange(mode);
                 return true;
             }
             return false;
@@ -124,17 +127,36 @@ public:
     int currentFrame = 0;
     virtual void update() override {
         currentFrame++;
-        //only check for dvr mode and ip cahnges every 30 fps, so 0,5-1 sec
-        if(currentFrame>=30){
-            currentFrame=0;
-            u32 newMode, newIp;
-            Result result = sysDvrGetMode(&newMode);
-            if(R_SUCCEEDED(result)){
-                updateMode(newMode);
-            }
-            nifmGetCurrentIpAddress(&newIp);
-            updateIP(newIp);
+        if(targetMode!=0 && waitFrames < 1){
+            sysDvrSetMode(targetMode);
+            refreshCurMode();
+            waitFrames=-1;
+        } else if(targetMode!=0){
+            waitFrames--;
         }
+        //only check for dvr mode and ip cahnges every 30 fps, so 0,5-1 sec
+        if(currentFrame >= UPDATE_INTERVALL){
+            currentFrame=0;
+            refreshCurMode();
+            refreshIp();
+        }
+    }
+
+    void refreshCurMode(){
+        if(targetMode!=0){
+            return; // pending mode change
+        }
+        u32 newMode;
+        Result result = sysDvrGetMode(&newMode);
+        if(R_SUCCEEDED(result)){
+            updateMode(newMode);
+        }
+    }
+
+    void refreshIp(){
+        u32 newIp;
+        nifmGetCurrentIpAddress(&newIp);
+        updateIP(newIp);
     }
 
     void updateMode(u32 newMode){
@@ -203,8 +225,16 @@ public:
         return rc;
     }
 
+    void sysDVRRequestModeChange(u32 command){
+        targetMode = command;
+        updateMode(TYPE_MODE_SWITCHING);
+        // Make sure the mode switching is drawn
+        waitFrames = 2;
+    }
+
     Result sysDvrSetMode(u32 command)
     {
+        targetMode = 0;
         Result rs = serviceDispatch(dvrService, MODE_TO_CMD_SET(command));
 
         //close and reinit sysdvr service, to directly apply the new mode.
