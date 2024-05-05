@@ -3,7 +3,7 @@
 
 //This is a version for the SysDVR Config app protocol, it's not shown anywhere and not related to the major version
 #define SYSDVR_VERSION_MIN 5
-#define SYSDVR_VERSION_MAX 13
+#define SYSDVR_VERSION_MAX 14
 #define TYPE_MODE_USB 1
 #define TYPE_MODE_TCP 2
 #define TYPE_MODE_RTSP 4
@@ -13,6 +13,7 @@
 
 #define CMD_GET_VER 100
 #define CMD_GET_MODE 101
+#define CMD_RESET_DISPLAY 103
 
 #define MODE_TO_CMD_SET(x) x
 #define UPDATE_INTERVALL 30
