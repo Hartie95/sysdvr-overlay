@@ -21,7 +21,7 @@ jobs:
     - name: Run build script
       run: |
         ./build.sh
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: SysDVR-Overlay-dev
         path: release/*/.overlays/*.ovl
