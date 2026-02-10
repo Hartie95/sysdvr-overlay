@@ -55,7 +55,7 @@ public:
         versionString = std::to_string(version);
 
         if(version>SYSDVR_VERSION_MAX ||version<SYSDVR_VERSION_MIN) {
-            list->addItem(getErrorDrawer("Unkown SysDVR Config API: v"+ versionString
+            list->addItem(getErrorDrawer("Unknown SysDVR Config API: v"+ versionString
                 +"\nOnly Config API v"+std::to_string(SYSDVR_VERSION_MIN)+" to "+std::to_string(SYSDVR_VERSION_MAX)+" is supported"), getErrorDrawerSize());
             frame->setContent(list);
             return frame;
@@ -208,7 +208,7 @@ public:
             case TYPE_MODE_ERROR:
                 return"Error";
             default:
-                return"Unkown";
+                return"Unknown";
         }
     }
 
