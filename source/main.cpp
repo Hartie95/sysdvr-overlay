@@ -3,7 +3,7 @@
 
 //This is a version for the SysDVR Config app protocol, it's not shown anywhere and not related to the major version
 #define SYSDVR_VERSION_MIN 5
-#define SYSDVR_VERSION_MAX 17
+#define SYSDVR_VERSION_MAX 18
 #define TYPE_MODE_USB 1
 #define TYPE_MODE_TCP 2
 #define TYPE_MODE_RTSP 4
@@ -55,7 +55,7 @@ public:
         versionString = std::to_string(version);
 
         if(version>SYSDVR_VERSION_MAX ||version<SYSDVR_VERSION_MIN) {
-            list->addItem(getErrorDrawer("Unkown SysDVR Config API: v"+ versionString
+            list->addItem(getErrorDrawer("Unknown SysDVR Config API: v"+ versionString
                 +"\nOnly Config API v"+std::to_string(SYSDVR_VERSION_MIN)+" to "+std::to_string(SYSDVR_VERSION_MAX)+" is supported"), getErrorDrawerSize());
             frame->setContent(list);
             return frame;
@@ -208,7 +208,7 @@ public:
             case TYPE_MODE_ERROR:
                 return"Error";
             default:
-                return"Unkown";
+                return"Unknown";
         }
     }
 
